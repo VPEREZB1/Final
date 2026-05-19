@@ -81,51 +81,64 @@ while True:
             ay = ultimo_mov.get('accel_y', 0.0)
             az = ultimo_mov.get('accel_z', 1.0)
             
-            # --- INDICADOR 1: CENTRO DE ALERTAS LÓGICAS ---
+            # --- INDICADORES: ALERTA LÓGICA ---
             st.subheader("⚠️ Estado Operacional de la Maquinaria")
             col_a1, col_a2 = st.columns(2)
             
             with col_a1:
-                # Alerta por estrés térmico en el motor
                 if temp > 28.0: 
-                    st.error(f"🚨 CRÍTICO: ¡Sobrecalentamiento crítico detectado! ({temp:.1f}°C)")
-                elif temp > 24.0:
-                    st.warning(f"⚠️ ADVERTENCIA: Temperatura elevada en la recámara ({temp:.1f}°C)")
+                    st.error(f"🚨 CRÍTICO: ¡Sobrecalentamiento del motor! ({temp:.1f}°C)")
                 else:
-                    st.success("✅ Temperatura térmica del motor estable.")
+                    st.success("✅ Temperatura térmica estable.")
                     
             with col_a2:
-                # Alerta por vibración destructiva u oscilación anormal (ejes X o Y)
                 if abs(ax) > 1.5 or abs(ay) > 1.5:
-                    st.error("🚨 ALERTA MECÁNICA: Vibración anormal detectada. Posible desalineación.")
+                    st.error("🚨 ALERTA MECÁNICA: Vibración fuera de límites seguros.")
                 else:
-                    st.success("✅ Patrón de vibración dentro de los límites seguros.")
+                    st.success("✅ Patrón de vibración correcto.")
             
             st.write("---")
             
-            # --- INDICADOR 2: TARJETAS MÉTRICAS (KPIs ACTUALES) ---
-            st.subheader("📊 Telemetría en Tiempo Real")
+            # --- TARJETAS MÉTRICAS (KPIs ACTUALES) ---
+            st.subheader("📊 Telemetría Actual")
             kpi1, kpi2, kpi3, kpi4 = st.columns(4)
             kpi1.metric(label="Temperatura Chasis", value=f"{temp:.1f} °C")
             kpi2.metric(label="Humedad Planta", value=f"{hum:.1f} %")
-            kpi3.metric(label="Vibración Eje X", value=f"{ax:.2f} g")
-            kpi4.metric(label="Vibración Eje Y", value=f"{ay:.2f} g")
+            kpi3.metric(label="Aceleración X", value=f"{ax:.2f} g")
+            kpi4.metric(label="Aceleración Y", value=f"{ay:.2f} g")
             
             st.write("---")
             
-            # --- INDICADORES 3 Y 4: GRÁFICAS CONTINUAS DE SERIES DE TIEMPO ---
-            st.subheader("📈 Análisis Histórico de Estabilidad")
-            graf1, graf2 = st.columns(2)
+            # ==============================================================
+            # ESTA SECCIÓN CONTIENE EXACTAMENTE LAS 4 GRÁFICAS REQUERIDAS
+            # ==============================================================
+            st.subheader("📈 Paneles de Análisis Continuo (Series de Tiempo)")
             
-            with graf1:
-                st.markdown("**Visualización 3: Comportamiento Térmico (Última Hora)**")
-                chart_clima = df_clima.set_index('_time')[['temperature', 'humidity']]
-                st.line_chart(chart_clima)
+            # FILA 1: Climatología de la Planta (Gráficos 1 y 2)
+            fila1_col1, fila1_col2 = st.columns(2)
+            
+            with fila1_col1:
+                st.markdown("**Gráfica 1: Historial de Temperatura del Motor (°C)**")
+                chart_temp = df_clima.set_index('_time')[['temperature']]
+                st.line_chart(chart_temp, color="#e53e3e") # Línea Roja para temperatura
                 
-            with graf2:
-                st.markdown("**Visualización 4: Análisis Dinámico de Vibración (Últimos 30m)**")
-                chart_mov = df_mov.set_index('_time')[['accel_x', 'accel_y', 'accel_z']]
-                st.line_chart(chart_mov)
+            with fila1_col2:
+                st.markdown("**Gráfica 2: Historial de Humedad Relativa (%)**")
+                chart_hum = df_clima.set_index('_time')[['humidity']]
+                st.line_chart(chart_hum, color="#3182ce") # Línea Azul para humedad
+                
+            # FILA 2: Dinámica Mecánica de Vibración (Gráficos 3 y 4)
+            fila2_col1, fila2_col2 = st.columns(2)
+            
+            with fila2_col1:
+                st.markdown("**Gráfica 3: Desplazamiento Transversal (Ejes X / Y)**")
+                chart_planos = df_mov.set_index('_time')[['accel_x', 'accel_y']]
+                st.line_chart(chart_planos)
+                
+            with fila2_col2:
+                st.markdown("**Gráfica 4: Impacto Vertical de Fuerza G (Eje Z)**")
+                chart_z = df_mov.set_index('_time')[['accel_z']]
+                st.line_chart(chart_z, color="#319795") # Línea verde/teal para el eje Z
                 
         else:
             st.warning("Enlazando con el nodo central de InfluxDB en AWS... Cargando datos industriales.")
