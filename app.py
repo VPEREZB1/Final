@@ -6,7 +6,7 @@ from influxdb_client import InfluxDBClient
 # --- 1. CONFIGURACIÓN ESTÉTICA DE LA INTERFAZ ---
 st.set_page_config(page_title="Vibration Monitor IoT", page_icon="🏭", layout="wide")
 
-st.title("🏭 INDUSGUARD: Sistema de Monitoreo de Vibración y Temperatura Industrial")
+st.title("🏭Sistema de Monitoreo de Vibración y Temperatura Industrial")
 st.markdown("Plataforma analítica para la prevención de fallas mecánicas y sobrecalentamiento de motores en tiempo real.")
 st.write("---")
 
